@@ -2,12 +2,7 @@
 #include "Letra.h"
 Juego::Juego(int k, tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>,map<Letra, Nat>,set<vector<Letra>>> const
         &variante , std::queue<Letra> &repositorio) {
-    /* Se agrega _fichasReponer  donde se guardan las fichas que recibió un jugador en caso de que se inicia el juego o
-     * luego de ubicar una ocurrencia. Tiene long k por eso no afecta la complejidad
-     * Se cambió la longitud del vector de cada jugador de fichasJugadores a 256 por como estan representadas las letras
-     * en c++, como es una constante en O(1), se respeta la complejidad
-     *
-     */
+
     varv2 = variante;
     int n = get<0>(varv2);
     _tablero = vector<vector<tuple<bool , Letra , Nat >>>(n,vector<tuple<bool , Letra , Nat >>(n,{false,'a',0}));
@@ -16,9 +11,9 @@ Juego::Juego(int k, tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>,map<Letra,
     _fichasJugadores = vector<vector<Nat>>(k, vector<Nat>(256,0));
 
     _fichasReponer = vector<multiset<Letra>> (k);
-    for (int i = 0; i < k; i++){  //fichas de cada jugador
+    for (int i = 0; i < k; i++){  
         for (int j = 0; j < get<1>(varv2); j ++){
-            _fichasJugadores[i][repositorio.front()] ++; //desencolo cantidad get<1>(varv2) las fichas y las reparto
+            _fichasJugadores[i][repositorio.front()] ++; 
             Letra l = repositorio.front();
             _fichasReponer[i].insert(l);
             repositorio.pop();
@@ -35,12 +30,7 @@ Juego::Juego(int k, tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>,map<Letra,
 
 
 Nat& Juego::puntaje(int cid) {
-    /*
-     *Se agrego para poder ver si hay un cambio de turno en la fichas que estan por sumar en un jugador. Se sacaron
-     * las funciones que sumaban  el puntaje de las letras que estaban en el tablero y se reutilizan las mismas
-     * funciones que suman el puntaje de las palabras, usandolas de manera inversa si es vertical se toma horizontal y
-     * restando el valor de la letra en cuestión
-     * */
+
     queue<tuple<int, int, Letra, int>> letra = _puntajePorSumar[cid];
     queue<tuple<int, int, Letra, int>> palabra = _puntajePorSumar[cid];
     queue<tuple<int, int, Letra, int>> siguiente = _puntajePorSumar[cid];
@@ -111,12 +101,11 @@ Nat& Juego::puntaje(int cid) {
         }
         if (avanzaVertcal){
             _puntaje[cid] += puntajePorPalabraFormadaHorizontal(get<0>(letra.front()), get<1>(letra.front()),get<2>(letra.front()))
-                            ; //Diferente al latex se reutiliza la funcion de sumar el puntaje
-            // restando el valor de la letra que se ve el puntaje para no sumar repetidos
+                            ;
         }
         else{
             _puntaje[cid] += puntajePorPalabraFormadaVertical(get<0>(letra.front()), get<1>(letra.front()),get<2>(letra.front()))
-                             ; //Diferente al latex se reutiliza la funcion de sumar el puntaje
+                             ; 
         }
 
 
@@ -145,8 +134,8 @@ Nat Juego::puntajePorPalabraFormadaVertical(int i, int j, int turno){
             i--;
         }
     }
-    continuar = true;//En el latex aparece q es el elemento 2 de la tupla el bool
-    while (get<2>(_tablero[k][j]) <= turno && get<0>(_tablero[k][j]) and  continuar){ //En el latex aparece tablero[i][j], pero creo q esta mal CREO
+    continuar = true;
+    while (get<2>(_tablero[k][j]) <= turno && get<0>(_tablero[k][j]) and  continuar){
         puntajeParcial += get<2>(varv2)[get<1>(_tablero[k][j])];
         if (k ==0){
             continuar = false;
@@ -286,8 +275,7 @@ std::tuple<bool, list<tuple<Nat,Nat,Letra>>, bool> Juego::cumpleOcurrencia(Ocurr
         potencialPalabraLetraUbicada.push_front(get<2>(*itr));
         if (formaVertical){
              lista[v-1] = *itr;
-             while(get<0>(*itr)-i > -1 and get<0>(_tablero[get<0>(*itr)-i][get<1>(*itr)])){ //Nunca va a entrar porque la posicion del tablero
-                 //nucnca esta ocupada
+             while(get<0>(*itr)-i > -1 and get<0>(_tablero[get<0>(*itr)-i][get<1>(*itr)])){ 
                  potencialPalabraLetraUbicada.push_front(get<1>(_tablero[get<0>(*itr)-i][get<1>(*itr)]));
                  i++;
              }
@@ -324,7 +312,7 @@ std::tuple<bool, list<tuple<Nat,Nat,Letra>>, bool> Juego::cumpleOcurrencia(Ocurr
     if (h!= o.size() and v!= o.size() and o.size() > 1){
         return make_tuple(false,listaOcurrencia, false);
     }
-   //Pasar de lista array a lista enlazada o ver como hacer que una funcion devuelva array
+ 
     for (tuple<Nat,Nat,Letra> i : lista){
         listaOcurrencia.push_back(i);
     }
@@ -351,7 +339,7 @@ std::tuple<bool, list<tuple<Nat,Nat,Letra>>, bool> Juego::completarEspaciosOcurr
                     return make_tuple(false,o, false);
                 } else{
                     it++;
-                    tuple<Nat, Nat, Letra> value ; //Tiene que ser el el elemento del tablero siguiente
+                    tuple<Nat, Nat, Letra> value ; 
                     o.insert(it, make_tuple(get<0>(actual), get<1>(actual)+1,
                             get<1>(_tablero[get<0>(actual)][get<1>(actual)+1])));
                 }
@@ -362,7 +350,7 @@ std::tuple<bool, list<tuple<Nat,Nat,Letra>>, bool> Juego::completarEspaciosOcurr
                     return make_tuple(false,o, false);
                 } else{
                     it++;
-                    tuple<Nat, Nat, Letra> value ; //Tiene que ser el el elemento del tablero siguiente
+                    tuple<Nat, Nat, Letra> value ;
                     o.insert(it, make_tuple(get<0>(actual)+1, get<1>(actual),
                             get<1>(_tablero[get<0>(actual)+1][get<1>(actual)])));
                 }
@@ -436,7 +424,7 @@ void Juego::ubicar(Ocurrencia o) {
         itr++;
     }
     _turno ++;
-    //puntaje(turnoDe);
+
 
 }
 
