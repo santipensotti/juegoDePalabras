@@ -10,18 +10,15 @@ Servidor::Servidor(int k, tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>,map<
         &variante, queue<Letra> &repositorio)
 
 : _juego(Juego(k, variante, repositorio))
-/*Inicializar el servidor, para una mayor facilidad cuando se consulta la variante, se recibe tambien un map letra nat
- * y un set con las palabras validas. Esto no afecta la complejidad ni se usa durante el programa, pero
- * para crear una Fachada Variante se necesita un map y set*/
+
 {
 
-    _notificaciones = vector<queue<Notificacion>>(k, queue<Notificacion>()); // O(K)
-    _var = variante;                        //Como se pasa por referencia es O(1)
+    _notificaciones = vector<queue<Notificacion>>(k, queue<Notificacion>()); 
+    _var = variante;                       
     _esperados = k;
     _conectados = 0;
-    _consultoEmpezar = vector<bool>(k,false);       //O(k)
-    _repo = repositorio;                            //O(1)
-    //configuracion no esta pero nunca lo usamos
+    _consultoEmpezar = vector<bool>(k,false);      
+    _repo = repositorio;                            
 }
 
 void Servidor::conectarCliente() {
@@ -30,10 +27,7 @@ void Servidor::conectarCliente() {
     _conectados ++;
 
     if (_conectados == _esperados){
-        /* Tuvimos que agregar esto en relacion al  TP1 porque cuando los jugadores son iguales a los conectados
-         * se tienen que enviar las notificaciones correspondientes. Es complejidad O(K) porque a cada jugador se le
-         * agregar 3 notificaciones,que son O(1)
-         * */
+
         for (int i = 0; i < _esperados  ; i++){
             _notificaciones[i].push(Notificacion::nuevaEmpezar(get<0>(_var)));
             _notificaciones[i].push(Notificacion::nuevaTurnoDe(0));
@@ -45,21 +39,6 @@ void Servidor::conectarCliente() {
 
 list<Notificacion> Servidor::consultar(IdCliente cid) {
     list<Notificacion> notDevueltas;
-    /* Como se inicializa el juego en conectar con sus respectivas notificaciones, no hay que agregar una notificacion
-     * de empezar, sino que directamente se pasa la cola de notificaciones a una lista
-    if (!_notificaciones[cid].empty()){
-        notDevueltas.push_back(_notificaciones[cid].front());
-        _notificaciones[cid].pop();
-    } Con la nueva complejidad, se pone el empezar en conectar cliente
-    if (_conectados == _esperados){
-        if (!consultoEmpezar(cid)){
-            //notDevueltas.push_back(Notificacion::nuevaEmpezar(get<0>(_var)));
-            _consultoEmpezar[cid] = true;
-           // notDevueltas.push_back(Notificacion::nuevaReponer(_juego.respuestas(cid)));
-            //notDevueltas.push_back(Notificacion::nuevaTurnoDe(_juego.turno()));
-        }
-
-    } */
     while (!_notificaciones[cid].empty()){
         notDevueltas.push_back(_notificaciones[cid].front());
         _notificaciones[cid].pop();
@@ -69,7 +48,7 @@ list<Notificacion> Servidor::consultar(IdCliente cid) {
 
 int Servidor::conectados() {
     return _conectados;
-}// aca no hay q iniciar el  j
+}
 int Servidor::esperados() {
     return _esperados;
 }
@@ -84,7 +63,6 @@ bool Servidor::consultoEmpezar(IdCliente cid) {
 
  tuple<tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>>, Repositorio> Servidor::configuracion(){
     tuple<Nat, Nat, vector<Nat>, conjDigital<Palabra>> variante =make_tuple(get<0>(_var),get<1>(_var),get<2>(_var), get<3>(_var));
-    //return make_tuple(variante, _repo);
 }
 
 
@@ -96,16 +74,7 @@ Servidor::Servidor( const Servidor &aCopiar (int k, tuple<Nat, Nat, vector<Nat>,
 }
 
 void Servidor::recibirMensaje(IdCliente cid, Ocurrencia o) {
-    /* Hay cambios respecto al TP1:
-     * -Se agrego tieneTodasFichas para que devuelva si la jugada no es valida si el jugador no
-     * tiene las fichas que dice en la ocurrencia,
-     * - Se sacaron del for puntajeViejo, fichasViejas,  _turno porque son variables que no cambian y no hace falta
-     * llamar a esas funciones en cada repeticion. Tambien el ubicar se saco del for porque no cumplia la precondicion
-     * ya que si se vuelven a ubicar las fichas, no seria una jugada valida.
-     * Tambien se agrega la notifiacion mal si se quiere jugar pero el juego no empezó.
-     * No se usa la funcion fichasRespuestas sino que se agregó en juego un vector de long
-     * cantJugadores donde estan las fichas que se reponen.
-     * */
+
     bool tieneTodasFichas = true;
     vector<Nat> fichasParaJugar = vector<Nat>(256,0);
     bool esValida = false;
@@ -157,9 +126,7 @@ Servidor &Servidor::operator=(const Servidor &aCopiar) {
     return  *this;
 }
 
-Servidor::~Servidor() {
 
-}
 
 
 
